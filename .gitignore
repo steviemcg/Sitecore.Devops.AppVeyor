@@ -1,0 +1,12 @@
+*.suo
+*.user
+[Bb]in/
+[Oo]bj/
+/output/
+/code/.vs/
+/code/packages/
+Thumbs.db
+Desktop.ini
+.DS_Store
+/buildscript/resources/license.xml
+/buildscript/secure-file
