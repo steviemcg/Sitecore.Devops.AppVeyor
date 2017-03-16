@@ -19,6 +19,9 @@ install:
 - ps: .\buildscript\environment-setup.ps1
 build_script:
 - ps: .\buildscript\build.ps1 appveyor -createArtifacts -installSitecore -buildSolution -deploySolution -dbUser sa -dbPass "Password12!" -adminPassword c -Configuration Release -ConfigConfiguration Test
+test:
+  assemblies:
+  - code\Devops.AppVeyor.UnitTests\bin\Release\Devops.AppVeyor.UnitTests.dll
 cache:
   - c:\downloads
   - c:\bfresources
