@@ -10,3 +10,4 @@ Desktop.ini
 .DS_Store
 /buildscript/resources/license.xml
 /buildscript/secure-file
+/code/.sonarqube

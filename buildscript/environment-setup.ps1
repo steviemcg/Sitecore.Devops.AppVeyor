@@ -28,8 +28,7 @@ if (!(Test-Path $licensePath)) {
 	
 	if (Test-Path $licensePathEnc) {
 		if(!$secret) {
-			Write-Host "'secret' parameter or environment variable not set" -ForegroundColor Red
-			exit 1		
+			throw "'secret' parameter or environment variable not set"
 		}
 	
 		if (!(Test-Path "$PSScriptRoot\secure-file"))
@@ -40,14 +39,12 @@ if (!(Test-Path $licensePath)) {
 		.\secure-file\tools\secure-file.exe -decrypt $licensePathEnc -secret $secret
 		
 		if (!($LastExitCode -eq "0")) {
-			Write-Host "secure-file failed with exit code $LastExitCode" -ForegroundColor Red
-			exit $LastExitCode
+			throw "secure-file failed with exit code $LastExitCode"
 		}
 		
 		Write-Host "Successfully decrypted license" -ForegroundColor Yellow
 	} else {
-		Write-Host "Cannot find encrypted license file" -ForegroundColor Red
-		exit 1
+		throw "Cannot find encrypted license file"
 	}
 }
 

@@ -78,8 +78,7 @@ Function MyBuild {
         }
         
         if (!($LastExitCode -eq "0")) {
-			Write-Host "Build failed with exit code $LastExitCode" -ForegroundColor Red
-			exit $LastExitCode
+			throw "Build failed with exit code $LastExitCode"
         }
     }
 
@@ -113,7 +112,6 @@ Function MyZip {
   Invoke-Expression "buildscript\tools\7z a $arguments"
 
   if (!($LastExitCode -eq "0")) {
-    Write-Host "7z failed with $LastExitCode" -ForegroundColor Red
-	exit $LastExitCode
+    throw "7z failed with $LastExitCode"
   }
 }
