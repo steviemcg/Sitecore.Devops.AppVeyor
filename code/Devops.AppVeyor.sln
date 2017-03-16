@@ -14,6 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configuration", "Configurat
 		..\buildscript\clean-instance.ps1 = ..\buildscript\clean-instance.ps1
 		..\buildscript\common.psm1 = ..\buildscript\common.psm1
 		..\buildscript\environment-setup.ps1 = ..\buildscript\environment-setup.ps1
+		..\LICENSE = ..\LICENSE
 		..\buildscript\publishsettings.targets = ..\buildscript\publishsettings.targets
 		..\README.md = ..\README.md
 	EndProjectSection
