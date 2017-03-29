@@ -64,6 +64,18 @@
       <HintPath>..\packages\Sitecore.Mvc.NoReferences.8.2.161221\lib\NET452\Sitecore.Mvc.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Sitecore.Ship">
+      <HintPath>..\..\lib\Sitecore.Ship\Sitecore.Ship.dll</HintPath>
+    </Reference>
+    <Reference Include="Sitecore.Ship.AspNet">
+      <HintPath>..\..\lib\Sitecore.Ship\Sitecore.Ship.AspNet.dll</HintPath>
+    </Reference>
+    <Reference Include="Sitecore.Ship.Core">
+      <HintPath>..\..\lib\Sitecore.Ship\Sitecore.Ship.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Sitecore.Ship.Infrastructure">
+      <HintPath>..\..\lib\Sitecore.Ship\Sitecore.Ship.Infrastructure.dll</HintPath>
+    </Reference>
     <Reference Include="Sitecore.Update, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Sitecore.Update.NoReferences.8.2.161221\lib\NET452\Sitecore.Update.dll</HintPath>
       <Private>True</Private>

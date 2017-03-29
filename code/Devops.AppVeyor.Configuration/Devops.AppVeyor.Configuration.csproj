@@ -46,6 +46,7 @@
     <Content Include="App_Config\Include\zzz\Project.config">
       <TransformOnBuild>true</TransformOnBuild>
     </Content>
+    <Content Include="App_Config\Include\zzz\Ship.config" />
     <None Include="App_Config\Include\zzz\Project.Dev.config">
       <DependentUpon>Project.config</DependentUpon>
       <IsTransformFile>True</IsTransformFile>

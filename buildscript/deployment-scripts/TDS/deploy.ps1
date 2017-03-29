@@ -1,7 +1,6 @@
 $ErrorActionPreference = "Stop"
 $url = $Env:url
 $ship_url = "${url}/sitecore_ship"
-$branch = $Env:APPVEYOR_REPO_BRANCH
 
 Function DeployTds {
     Param (
@@ -23,7 +22,7 @@ Function Warmup() {
 }
 
 Warmup
-DeployTds -name "API.Update"
+DeployTds -name "Devops.AppVeyor.Update"
 
 Write-Host "Testing site..." -ForegroundColor Yellow
 $page = Invoke-WebRequest -Uri ${url} -TimeoutSec 600 -UseBasicParsing
