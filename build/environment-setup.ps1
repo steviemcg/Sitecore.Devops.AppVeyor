@@ -16,7 +16,7 @@ if(!$secret) {
 	$secret = $Env:my_secret
 }
 
-CheckLicense $LicenseFile
+CheckLicense $LicenseFile -secret $secret
 
 Write-Host "Installing prerequisites..." -ForegroundColor Green
 New-Item $downloadDirectory -ItemType "directory" -Force -ErrorAction SilentlyContinue

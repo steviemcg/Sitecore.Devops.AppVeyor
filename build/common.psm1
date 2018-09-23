@@ -19,7 +19,8 @@ Function CheckAdmin() {
 }
 
 Function CheckLicense(
-    [Parameter(Mandatory=$true)] [string]$LicenseFile
+    [Parameter(Mandatory=$true)] [string]$LicenseFile,
+	[Parameter(Mandatory=$false)] [string]$secret
 ) {
 	Write-Host "Checking license..." -ForegroundColor Green
 	if (Test-Path $LicenseFile) {
@@ -33,7 +34,7 @@ Function CheckLicense(
 		throw "Cannot find encrypted license file"
 	}
 
-	if(!$Global:secret) {
+	if(!secret) {
 		throw "'secret' parameter or environment variable not set"
 	}
 	
@@ -42,7 +43,7 @@ Function CheckLicense(
 		nuget install secure-file -ExcludeVersion
 	}	
 	
-	.\secure-file\tools\secure-file.exe -decrypt $LicenseFileEnc -secret $Global:secret
+	.\secure-file\tools\secure-file.exe -decrypt $LicenseFileEnc -secret $secret
 		
 	if (!($LastExitCode -eq "0")) {
 		throw "secure-file failed with exit code $LastExitCode"
