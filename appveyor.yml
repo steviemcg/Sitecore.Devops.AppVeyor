@@ -1,42 +1,23 @@
 version: 1.0.{build}
-image: Visual Studio 2015
+image: Visual Studio 2017
 configuration: Release
 shallow_clone: true
+clone_depth: 1
 environment:
-  TDS_Owner:
-    secure: SP5FAsZMwJMI+UpCCLZW0A==
-  TDS_Key:
-    secure: ZVyfwt76imlwHgtEaLQ+4pw1NQOKM9wfIfSZCDu8SjA=
   my_secret:
     secure: OK4Ru5U1BaO5PzLhlmjEIg==
-  repositoryUrl:
-    secure: tvDdT2DZMOgijvJd0Pvmuic+soMCi6cNrh+ndejvp0hRA8ZKBYc+9lvpCl71U6c6
 services:
 - iis
-- mssql2014
-- mongodb
-install:
-- ps: .\buildscript\environment-setup.ps1
+- mssql2017
 build_script:
-- ps: .\buildscript\build.ps1 appveyor -createArtifacts -installSitecore -buildSolution -deploySolution -dbUser sa -dbPass "Password12!" -adminPassword c -Configuration Release -ConfigConfiguration Test
+- ps: .\build\build.ps1 appveyor -createArtifacts -installSitecore -buildSolution -deploySolution -$SqlAdminUser sa -$SqlAdminPassword "Password12!" -adminPassword c -Configuration Release
 test:
   assemblies:
-  - code\Devops.AppVeyor.UnitTests\bin\Release\Devops.AppVeyor.UnitTests.dll
+  - src\**\DevOps.AppVeyor.Tests.*.dll
 cache:
   - c:\downloads
-  - c:\bfresources
 artifacts:
-- path: output\TDS.zip
-  name: Tds
 - path: output\Files.zip
   name: Files
-- path: output\config-local.zip
-  name: ConfigLocal
-- path: output\config-dev.zip
-  name: ConfigDev
-- path: output\config-test.zip
-  name: ConfigTest
-- path: output\config-production.zip
-  name: ConfigProduction
-on_finish:
-- ps: '#$blockRdp = $true; iex ((new-object net.webclient).DownloadString(''https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1''))'
+on_failure:
+- ps: '$blockRdp = $true; iex ((new-object net.webclient).DownloadString(''https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1''))'

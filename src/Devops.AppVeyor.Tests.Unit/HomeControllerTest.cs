@@ -1,9 +1,9 @@
 ﻿using System.Web.Mvc;
 using Devops.AppVeyor.Controllers;
-using Devops.AppVeyor.UnitTests.AutoFixture;
+using Devops.AppVeyor.Tests.Unit.AutoFixture;
 using Xunit;
 
-namespace Devops.AppVeyor.UnitTests
+namespace Devops.AppVeyor.Tests.Unit
 {
     public class HomeControllerTest
     {

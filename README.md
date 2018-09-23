@@ -37,7 +37,7 @@ Pull Requests are automatically built by AppVeyor, and can only be merged to mas
 
 ## Packaging
 
-Packaging is done using Hedgehog's [Team Development for Sitecore](http://www.teamdevelopmentforsitecore.com/). An alternative would be to use [Unicorn](https://github.com/kamsar/Unicorn) and this will be added to this repository soon as an option.
+
 
 ## Contributing
 

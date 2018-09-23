@@ -1,95 +1,76 @@
 param
 (
  [Parameter(Mandatory=$false)] [string]   $downloadDirectory = "C:\Downloads", 
- [Parameter(Mandatory=$false)] [string]   $bfDirectory = "C:\BFResources",
- [Parameter(Mandatory=$false)] [string]   $licensePath = $PSScriptRoot + "\resources\license.xml",
- [Parameter(Mandatory=$false)] [string]   $tdsVersion = "5.6.0.12",
- [Parameter(Mandatory=$false)] [string]   $repositoryUrl,
+ [Parameter(Mandatory=$false)] [string]   $LicenseFile = $PSScriptRoot + "\resources\license.xml",
  [Parameter(Mandatory=$false)] [string]   $secret
 )
 
 $ErrorActionPreference = "Stop"
 $elapsed = [System.Diagnostics.Stopwatch]::StartNew()
 Import-Module $PSScriptRoot\common.psm1 -DisableNameChecking -Force
-$codeDir = Resolve-Path "$PSScriptRoot\..\code"
+CheckAdmin
+
+$srcDir = Resolve-Path "$PSScriptRoot\..\src"
 
 if(!$secret) {
 	$secret = $Env:my_secret
 }
 
-if(!$repositoryUrl) {
-	$repositoryUrl = $Env:repositoryUrl
-}
-
-Write-Host "Checking license..." -ForegroundColor Green
-if (!(Test-Path $licensePath)) {
-	$licensePathEnc = "$licensePath.enc"
-	Write-Host "$licensePath not found, checking $licensePathEnc" -ForegroundColor Yellow
-	
-	if (Test-Path $licensePathEnc) {
-		if(!$secret) {
-			throw "'secret' parameter or environment variable not set"
-		}
-	
-		if (!(Test-Path "$PSScriptRoot\secure-file"))
-		{
-			nuget install secure-file -ExcludeVersion
-		}	
-	
-		.\secure-file\tools\secure-file.exe -decrypt $licensePathEnc -secret $secret
-		
-		if (!($LastExitCode -eq "0")) {
-			throw "secure-file failed with exit code $LastExitCode"
-		}
-		
-		Write-Host "Successfully decrypted license" -ForegroundColor Yellow
-	} else {
-		throw "Cannot find encrypted license file"
-	}
-}
+CheckLicense $LicenseFile
 
 Write-Host "Installing prerequisites..." -ForegroundColor Green
 New-Item $downloadDirectory -ItemType "directory" -Force -ErrorAction SilentlyContinue
-New-Item $bfDirectory -ItemType "directory" -Force -ErrorAction SilentlyContinue
 
 if ((Get-Command "nuget.exe" -ErrorAction SilentlyContinue) -eq $null) {
     choco install NuGet.CommandLine -y
 }
 
-if (!(Test-Path "C:\NSSM"))
+Get-PackageProvider -Name Nuget -ForceBootstrap
+
+if(!(Get-PSRepository | Where-Object { ($_.Name -eq "SitecoreGallery") })) {
+    Register-PSRepository -Name "SitecoreGallery" `
+                          -SourceLocation "https://sitecore.myget.org/F/sc-powershell/api/v2" `
+                          -InstallationPolicy Trusted | Out-Null
+
+    Write-Host ("PowerShell repository `"SitecoreGallery`" has been registered.") -ForegroundColor Green
+}
+
+$localSqlServerModule = Get-InstalledModule | Where-Object { $_.Name -eq "SqlServer" }
+if(!($localSqlServerModule))
 {
-    nuget install nssm -version 2.24.0 -OutputDirectory "C:\" -ExcludeVersion
+    Install-module -Name "SqlServer" -Scope AllUsers -Force -SkipPublisherCheck -AllowClobber | Out-Null
+    Write-Host ("SqlServer module installed") -ForegroundColor Green
 }
-
-Write-Host "Downloading packages..." -ForegroundColor Green
-
-$urls = New-Object System.Collections.ArrayList
-$urls.Add("/ads/,ps.ads.1.7.270.nupkg,$downloadDirectory")
-$urls.Add("/ads/,ps.config.8.2.2.nupkg,$downloadDirectory")
-$urls.Add("/nuget/,HedgehogDevelopment.TDS.$tdsVersion.nupkg,$downloadDirectory")
-$urls.Add("/installs/,$cmsVersion,$bfDirectory")
-
-foreach($url in $urls) {
-	$arr = $url -split ','
-	$source = "${repositoryUrl}$($arr[0])$($arr[1])"
-	$target = "$($arr[2])\$($arr[1])"
-
-	DownloadIfNeeded $source $target
-}
-
-if (!(Test-Path "C:\SitecorePowershell\ps.ads"))
+else 
 {
-    choco install ps.ads -y -Source $downloadDirectory --force
+    $latestSqlServerModule = Find-Module -Name "SqlServer"
+    $localSqlServerModuleByVersion = Get-InstalledModule | Where-Object {($_.Name -eq "SqlServer") -and ($_.Version -eq $latestSqlServerModule.Version)}
+    if($localSqlServerModuleByVersion -eq $null)
+    {
+        Install-module -Name "SqlServer" -Scope AllUsers -RequiredVersion $latestSqlServerModule.Version -Force -SkipPublisherCheck -AllowClobber | Out-Null
+        Write-Host ("SqlServer module updated") -ForegroundColor Green        
+    }
 }
 
-if (!(Test-Path "C:\SitecorePowershell\ps.config"))
-{
-    nuget install ps.config -Source $downloadDirectory -OutputDirectory "C:\SitecorePowershell\" -ExcludeVersion
+if(!(Get-InstalledModule | Where-Object { $_.Name -eq "SitecoreInstallFramework" })) {
+    Install-Module -Name "SitecoreInstallFramework" -Repository "SitecoreGallery" -Force -Scope AllUsers -SkipPublisherCheck -AllowClobber | Out-Null
+    Write-Host ("Module `"SitecoreInstallFramework`" has been installed.") -ForegroundColor Green
+} else {
+    [array] $sifModules = Find-Module -Name "SitecoreInstallFramework" -Repository "SitecoreGallery"
+    $latestSIFModule = $sifModules[-1]
+    $localSIFModuleByVersion = Get-InstalledModule | Where-Object { ($_.Name -eq "SitecoreInstallFramework") -and ($_.Version -eq $latestSIFModule.Version) }
+    if($localSIFModuleByVersion -eq $null) {
+        Install-module -Name "SitecoreInstallFramework" -Repository "SitecoreGallery" -Scope AllUsers -RequiredVersion $latestSIFModule.Version -Force -SkipPublisherCheck -AllowClobber | Out-Null
+        Write-Host ("Module `"SitecoreInstallFramework`" has been updated.") -ForegroundColor Green    
+    }
 }
+
+Write-Host "Enabling modern security protocols..." -foregroundcolor "green"
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]'Ssl3,Tls,Tls11,Tls12' 
+
+choco install -y urlrewrite
 
 refreshenv
 $env:PSModulePath = [Environment]::GetEnvironmentVariable('PSModulePath', 'Machine')
-
-nuget install HedgehogDevelopment.TDS -Source $downloadDirectory -OutputDirectory "$codeDir\packages\"
 
 Write-Host "Successfully setup dev environment (time: $($elapsed.Elapsed.ToString()))"

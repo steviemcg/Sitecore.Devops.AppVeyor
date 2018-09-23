@@ -1,7 +1,7 @@
 ﻿using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.Xunit2;
 
-namespace Devops.AppVeyor.UnitTests.AutoFixture
+namespace Devops.AppVeyor.Tests.Unit.AutoFixture
 {
     public class DefaultAutoDataAttribute : AutoDataAttribute
     {

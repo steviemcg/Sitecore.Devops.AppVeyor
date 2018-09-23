@@ -7,10 +7,11 @@
     <ProjectGuid>{BA5DF08C-CDA4-440B-9750-084CB7D70018}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Devops.AppVeyor.UnitTests</RootNamespace>
-    <AssemblyName>Devops.AppVeyor.UnitTests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <RootNamespace>Devops.AppVeyor.Tests.Unit</RootNamespace>
+    <AssemblyName>Devops.AppVeyor.Tests.Unit</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

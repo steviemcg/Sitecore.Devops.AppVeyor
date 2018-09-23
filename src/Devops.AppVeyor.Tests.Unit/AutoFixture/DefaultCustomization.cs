@@ -1,7 +1,7 @@
 ﻿using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoNSubstitute;
 
-namespace Devops.AppVeyor.UnitTests.AutoFixture
+namespace Devops.AppVeyor.Tests.Unit.AutoFixture
 {
     internal class DefaultCustomization : CompositeCustomization
     {

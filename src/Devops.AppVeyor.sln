@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Devops.AppVeyor", "Devops.AppVeyor\Devops.AppVeyor.csproj", "{408E5B7D-DB71-4686-BA02-B959F0C259AA}"
 EndProject
@@ -10,39 +10,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configuration", "Configurat
 		..\.gitattributes = ..\.gitattributes
 		..\.gitignore = ..\.gitignore
 		..\appveyor.yml = ..\appveyor.yml
-		..\buildscript\build.ps1 = ..\buildscript\build.ps1
-		..\buildscript\clean-instance.ps1 = ..\buildscript\clean-instance.ps1
-		..\buildscript\common.psm1 = ..\buildscript\common.psm1
-		..\buildscript\environment-setup.ps1 = ..\buildscript\environment-setup.ps1
+		..\build\build.ps1 = ..\build\build.ps1
+		..\build\clean-instance.ps1 = ..\build\clean-instance.ps1
+		..\build\common.psm1 = ..\build\common.psm1
+		..\build\environment-setup.ps1 = ..\build\environment-setup.ps1
 		..\LICENSE = ..\LICENSE
-		..\buildscript\publishsettings.targets = ..\buildscript\publishsettings.targets
+		..\build\publishsettings.targets = ..\build\publishsettings.targets
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Devops.AppVeyor.Configuration", "Devops.AppVeyor.Configuration\Devops.AppVeyor.Configuration.csproj", "{4D22CCF6-11ED-4AB8-9009-929238B149CC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Devops.AppVeyor.Tests.Unit", "Devops.AppVeyor.Tests.Unit\Devops.AppVeyor.Tests.Unit.csproj", "{BA5DF08C-CDA4-440B-9750-084CB7D70018}"
 EndProject
-Project("{CAA73BB0-EF22-4D79-A57E-DF67B3BA9C80}") = "Devops.AppVeyor.TDS.Master", "Devops.AppVeyor.TDS.Master\Devops.AppVeyor.TDS.Master.scproj", "{DD4A3F59-817F-4627-894E-B17133E57557}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".tds", ".tds", "{B6E2229A-5826-4E83-B004-4C2AED47F232}"
-	ProjectSection(SolutionItems) = preProject
-		TdsGlobal.config = TdsGlobal.config
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Devops.AppVeyor.UnitTests", "Devops.AppVeyor.UnitTests\Devops.AppVeyor.UnitTests.csproj", "{BA5DF08C-CDA4-440B-9750-084CB7D70018}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Devops.AppVeyor.UiTests", "Devops.AppVeyor.UiTests\Devops.AppVeyor.UiTests.csproj", "{63183B1A-4E29-4EC1-89BE-A21F92E0FF7E}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "deployment-scripts", "deployment-scripts", "{FB5132D0-B723-4F4E-9454-A8589CBF73EB}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TDS", "TDS", "{0767BDB7-68EA-41AF-9E2B-B4E4A2B199FE}"
-	ProjectSection(SolutionItems) = preProject
-		..\buildscript\deployment-scripts\TDS\deploy.ps1 = ..\buildscript\deployment-scripts\TDS\deploy.ps1
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files", "Files", "{FA348E3C-9638-45C5-B5AE-63201891FD7D}"
-	ProjectSection(SolutionItems) = preProject
-		..\buildscript\deployment-scripts\Files\deploy.ps1 = ..\buildscript\deployment-scripts\Files\deploy.ps1
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Devops.AppVeyor.Tests.UI", "Devops.AppVeyor.Tests.UI\Devops.AppVeyor.Tests.UI.csproj", "{63183B1A-4E29-4EC1-89BE-A21F92E0FF7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,18 +47,6 @@ Global
 		{4D22CCF6-11ED-4AB8-9009-929238B149CC}.Production|Any CPU.Build.0 = Production|Any CPU
 		{4D22CCF6-11ED-4AB8-9009-929238B149CC}.Test|Any CPU.ActiveCfg = Test|Any CPU
 		{4D22CCF6-11ED-4AB8-9009-929238B149CC}.Test|Any CPU.Build.0 = Test|Any CPU
-		{DD4A3F59-817F-4627-894E-B17133E57557}.Dev|Any CPU.ActiveCfg = Release|Any CPU
-		{DD4A3F59-817F-4627-894E-B17133E57557}.Dev|Any CPU.Build.0 = Release|Any CPU
-		{DD4A3F59-817F-4627-894E-B17133E57557}.Dev|Any CPU.Deploy.0 = Release|Any CPU
-		{DD4A3F59-817F-4627-894E-B17133E57557}.Local|Any CPU.ActiveCfg = Debug|Any CPU
-		{DD4A3F59-817F-4627-894E-B17133E57557}.Local|Any CPU.Build.0 = Debug|Any CPU
-		{DD4A3F59-817F-4627-894E-B17133E57557}.Local|Any CPU.Deploy.0 = Debug|Any CPU
-		{DD4A3F59-817F-4627-894E-B17133E57557}.Production|Any CPU.ActiveCfg = Release|Any CPU
-		{DD4A3F59-817F-4627-894E-B17133E57557}.Production|Any CPU.Build.0 = Release|Any CPU
-		{DD4A3F59-817F-4627-894E-B17133E57557}.Production|Any CPU.Deploy.0 = Release|Any CPU
-		{DD4A3F59-817F-4627-894E-B17133E57557}.Test|Any CPU.ActiveCfg = Release|Any CPU
-		{DD4A3F59-817F-4627-894E-B17133E57557}.Test|Any CPU.Build.0 = Release|Any CPU
-		{DD4A3F59-817F-4627-894E-B17133E57557}.Test|Any CPU.Deploy.0 = Release|Any CPU
 		{BA5DF08C-CDA4-440B-9750-084CB7D70018}.Dev|Any CPU.ActiveCfg = Release|Any CPU
 		{BA5DF08C-CDA4-440B-9750-084CB7D70018}.Dev|Any CPU.Build.0 = Release|Any CPU
 		{BA5DF08C-CDA4-440B-9750-084CB7D70018}.Local|Any CPU.ActiveCfg = Debug|Any CPU
@@ -100,9 +67,7 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{FB5132D0-B723-4F4E-9454-A8589CBF73EB} = {D643AED3-DC0F-4B1F-8E15-2BF378FC6D0E}
-		{0767BDB7-68EA-41AF-9E2B-B4E4A2B199FE} = {FB5132D0-B723-4F4E-9454-A8589CBF73EB}
-		{FA348E3C-9638-45C5-B5AE-63201891FD7D} = {FB5132D0-B723-4F4E-9454-A8589CBF73EB}
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {62752499-9556-4A3E-BDBC-0AD69D4965C8}
 	EndGlobalSection
 EndGlobal

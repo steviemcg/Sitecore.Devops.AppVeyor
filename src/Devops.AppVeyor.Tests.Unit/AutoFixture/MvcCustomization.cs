@@ -1,7 +1,7 @@
 ﻿using System.Web.Mvc;
 using Ploeh.AutoFixture;
 
-namespace Devops.AppVeyor.UnitTests.AutoFixture
+namespace Devops.AppVeyor.Tests.Unit.AutoFixture
 {
     internal class MvcCustomization : ICustomization
     {

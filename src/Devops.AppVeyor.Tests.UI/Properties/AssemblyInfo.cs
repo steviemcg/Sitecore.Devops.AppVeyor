@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Devops.AppVeyor.UiTests")]
+[assembly: AssemblyTitle("Devops.AppVeyor.Tests.UI")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Devops.AppVeyor.UiTests")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyProduct("Devops.AppVeyor.Tests.UI")]
+[assembly: AssemblyCopyright("Copyright © Steve McGill")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

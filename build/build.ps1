@@ -6,23 +6,20 @@ param
  [Parameter(Mandatory=$false)] [switch]   $installSitecore = $true,
  [Parameter(Mandatory=$false)] [switch]   $buildSolution = $true,
  [Parameter(Mandatory=$false)] [switch]   $deploySolution = $true,
- [Parameter(Mandatory=$false)] [switch]   $createArtifacts = $false,
- [Parameter(Mandatory=$false)] [string]   $downloadDirectory = "C:\Downloads", 
- [Parameter(Mandatory=$false)] [string]   $bfDirectory = "C:\BFResources",
- [Parameter(Mandatory=$false)] [string]   $cmsVersion = "Sitecore 8.2 rev. 161221.zip",
- [Parameter(Mandatory=$false)] [string]   $cmsPackage = "$bfDirectory\$cmsVersion",
- [Parameter(Mandatory=$false)] [string]   $licensePath = $PSScriptRoot + "\resources\license.xml",
- [Parameter(Mandatory=$false)] [string]   $dbServer = ".",
- [Parameter(Mandatory=$true)]  [string]   $dbUser,
- [Parameter(Mandatory=$true)]  [string]   $dbPass,
+ [Parameter(Mandatory=$false)] [switch]   $createArtifacts = $true,
+ [Parameter(Mandatory=$false)] [string]   $downloadDirectory = "C:\Downloads",
+ [Parameter(Mandatory=$false)] [string]   $cmsPackage = "Sitecore 9.0.2 rev. 180604 (OnPrem)_cm.scwdp.zip",
+ [Parameter(Mandatory=$false)] [string]   $LicenseFile = $PSScriptRoot + "\resources\license.xml",
+ [Parameter(Mandatory=$false)] [string]   $SqlServer = ".",
+ [Parameter(Mandatory=$true)]  [string]   $SqlAdminUser,
+ [Parameter(Mandatory=$true)]  [string]   $SqlAdminPassword,
  [Parameter(Mandatory=$true)]  [string]   $adminPassword,
- [Parameter(Mandatory=$false)] [string]   $msbuild = "C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe",
- [Parameter(Mandatory=$false)] [string]   $Configuration = "Debug",
- [Parameter(Mandatory=$false)] [string]   $ConfigConfiguration = "Local",
- [Parameter(Mandatory=$false)] [string]   $solrVersion = "5.1.0",
- [Parameter(Mandatory=$false)] [string]   $tdsVersion = "5.6.0.12",
- [Parameter(Mandatory=$false)] [string]   $secret,
- [Parameter(Mandatory=$false)] [string]   $repositoryUrl 
+ [Parameter(Mandatory=$false)] [string]   $msbuild = "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin\MSBuild.exe",
+ [Parameter(Mandatory=$false)] [string]   $Configuration = "Release",
+ [Parameter(Mandatory=$false)] [string]   $SolrDir = 'C:\solr\',
+ [Parameter(Mandatory=$false)] [string]   $SolrVersion = '6.6.2',
+ [Parameter(Mandatory=$false)] [string]   $SolrPort = '8983',
+ [Parameter(Mandatory=$false)] [string]   $secret
 )
 
 $ErrorActionPreference = "Stop"
@@ -31,85 +28,66 @@ Import-Module $PSScriptRoot\common.psm1 -DisableNameChecking -Force
 $websitePath = "$instanceRoot\Website"
 $ci = ($Env:APPVEYOR -eq "True")
 
-. "$PSScriptRoot\environment-setup.ps1" -licensePath $licensePath -secret $secret -repositoryUrl $repositoryUrl -downloadDirectory $downloadDirectory -bfDirectory $bfDirectory -tdsVersion $tdsVersion
+. "$PSScriptRoot\environment-setup.ps1" -licenseFile $LicenseFile -secret $secret -downloadDirectory $downloadDirectory
 
 cd $PSScriptRoot\..
 
 if ($buildSolution) {
     Write-Host "Restoring Nuget packages" -ForegroundColor Green
+    nuget restore "$srcDir\Devops.AppVeyor.sln"
 
-    nuget restore "$codeDir\Devops.AppVeyor.sln"
+	Write-Host "Building the solution" -ForegroundColor Green
+	MyBuild -path Devops.AppVeyor.sln -Configuration $Configuration
 }
 
 if ($installSitecore) {
-    Import-Module SOLR
-    Import-Module SitecoreConfig    
-    
-    Write-Host "Cleaning instance $instanceName" -ForegroundColor Green
-    Clean-Instance -InstanceName $instanceName -SqlServerName $dbServer
-
-    Write-Host "Deploying Solr" -ForegroundColor Green
-    $solrZipTarget = "$downloadDirectory\solr-$solrVersion.zip"
-    DownloadIfNeeded "https://archive.apache.org/dist/lucene/solr/$solrVersion/solr-$solrVersion.zip" $solrZipTarget
-    Deploy-Solr -InstanceName $instanceName -SolrZip $solrZipTarget -SolrVersion $solrVersion
-
     Write-Host "Installing Sitecore, site name $instanceName, package $cmsPackage" -ForegroundColor Green
-    Deploy-All -InstanceName $instanceName -LicenseFile $licensePath -cmsPackage $cmsPackage -DatabaseUser $dbUser -DatabasePassword $dbPass -SuppressOutput -SqlServerName $dbServer -SitecorePath $instanceRoot
-	
-    Write-Host "Switching Lucene to Solr" -ForegroundColor Green
-    Config-Sitecore -InstanceName $instanceName -WebsitePath $rootFolder -SolrSearchProvider:$true -SolrHost localhost -SolrPort 8984 -SolrInstName $instanceName -LuceneSearchProvider:$false  
-    Config-Modules -InstanceName $instanceName -WebsitePath $rootFolder -Solr:$true -SolrInstName $instanceName -Lucene:$false
-        
-    Check-SiteStatus $instanceName
+    DownloadIfNeeded "https://schreudersbuild.blob.core.windows.net/installs/$cmsPackage" "$downloadDirectory\$cmsPackage"
 
-    Write-Host "Changing default admin password" -ForegroundColor Green
-    Sitecore-ChangePassword $instanceName "b" $adminPassword
+    $CMPackage = Resolve-Path "$downloadDirectory\$cmsPackage"
+    $CMConfig = Resolve-Path "$PSScriptRoot\sitecore-XM1-cm.json"
+    $SolrConfig = Resolve-Path "$PSScriptRoot\sitecore-solr.json"
+    $SolrServerConfig = Resolve-Path "$PSScriptRoot\SolrServer.json"
+
+    cd $PSScriptRoot
+
+    Write-Host "================= Installing Solr if necessary =================" -foregroundcolor "green"
+    Install-SitecoreConfiguration $SolrServerConfig -Skip "Verify Solr is working"
+
+    Write-Host "================= Installing Solr cores =================" -foregroundcolor "green"
+    Install-SitecoreConfiguration -Path $SolrConfig `
+                              -SolrUrl "https://solr:$SolrPort/solr" `
+                              -SolrRoot "$($SolrDir)\Solr-$($SolrVersion)" `
+                              -SolrService "Solr-$SolrVersion" `
+                              -CorePrefix $instanceName
+
+    Write-Host "================= Installing Content Management =================" -foregroundcolor "green"
+
+    sqlcmd -S $SqlServer -U $SqlAdminUser -P $SqlAdminPassword -h-1 -Q "sp_configure 'contained database authentication', 1; RECONFIGURE;"
+
+    Install-SitecoreConfiguration -Path $CMConfig `
+                              -Package $CMPackage `
+                              -LicenseFile $LicenseFile `
+                              -SqlDbPrefix $instanceName `
+                              -SolrCorePrefix $instanceName `
+                              -SiteName $instanceName `
+                              -SqlServer $SqlServer `
+                              -SqlAdminUser $SqlAdminUser `
+                              -SqlAdminPassword $SqlAdminPassword `
+                              -SolrUrl "https://solr:$SolrPort/solr" `
+                              -SitecoreAdminPassword $adminPassword
+
+    cd $PSScriptRoot\..
 }
 
-Configure-TDS $instanceName $instanceRoot
-
-if ($buildSolution) {
-    New-Item output -ItemType "directory" -Force -ErrorAction SilentlyContinue
-
-	Write-Host "Building the solution" -ForegroundColor Green
-	MyBuild -path Devops.AppVeyor.sln -Configuration $ConfigConfiguration
-
-    Write-Host "Configuration files" -ForegroundColor Green
-    MyBuild -path Devops.AppVeyor.Configuration\Devops.AppVeyor.Configuration.csproj -Configuration Local
-	MyBuild -path Devops.AppVeyor.Configuration\Devops.AppVeyor.Configuration.csproj -Configuration Dev
-	MyBuild -path Devops.AppVeyor.Configuration\Devops.AppVeyor.Configuration.csproj -Configuration Test
-	MyBuild -path Devops.AppVeyor.Configuration\Devops.AppVeyor.Configuration.csproj -Configuration Production
-
-	Write-Host "Copying to output directory" -ForegroundColor Green
-	MyBuild -path Devops.AppVeyor\Devops.AppVeyor.csproj -Configuration $Configuration -targetDir output/working.dir/ -build:$false
-	MyBuild -path Devops.AppVeyor.Configuration\Devops.AppVeyor.Configuration.csproj -Configuration $ConfigConfiguration -targetDir output/working.dir/ -build:$false
-	Remove-Item .\output\working.dir\bin\Devops.AppVeyor.Configuration.*
-
-    if ($createArtifacts) {
-        Write-Host "Now zip it all up" -ForegroundColor Green
-        MyZip -arguments "output\Files.zip .\buildscript\deployment-scripts\Files\deploy.ps1 .\output\working.dir\*"
-        MyZip -arguments "output\config-local.zip .\buildscript\deployment-scripts\Files\deploy.ps1 .\code\Devops.AppVeyor.Configuration\obj\Local\Package\PackageTmp\*"
-        MyZip -arguments "output\config-dev.zip .\buildscript\deployment-scripts\Files\deploy.ps1 .\code\Devops.AppVeyor.Configuration\obj\Dev\Package\PackageTmp\*"
-        MyZip -arguments "output\config-test.zip .\buildscript\deployment-scripts\Files\deploy.ps1 .\code\Devops.AppVeyor.Configuration\obj\Test\Package\PackageTmp\*"
-        MyZip -arguments "output\config-production.zip .\buildscript\deployment-scripts\Files\deploy.ps1 .\code\Devops.AppVeyor.Configuration\obj\Production\Package\PackageTmp\*"
-
-        if ($Configuration -eq "Release") {
-            MyZip -arguments "output\TDS.zip .\buildscript\deployment-scripts\TDS\deploy.ps1 .\code\Devops.AppVeyor.TDS.Master\bin\Package_Release\Devops.AppVeyor.Update"
-        }
-    }
+if ($createArtifacts) {
+    Write-Host "Now zip it all up" -ForegroundColor Green
+    MyZip -arguments "output\Files.zip $srcDir\Devops.AppVeyor\bin\*"
 }
 
 if ($deploySolution) {
     Write-Host "Deploying files" -ForegroundColor Green
-	MySync .\output\working.dir\ $websitePath
-    MySync .\code\Devops.AppVeyor.ConfigurationFiles\obj\$ConfigConfiguration\Package\PackageTmp\ $websitePath
-
-    Check-SiteStatus $instanceName
-    
-    Write-Host "Rebuilding indexes" -ForegroundColor Green
-    Rebuild-Indexes $instanceName
-
-    Check-SiteStatus $instanceName
+	#MySync .\output\working.dir\ $websitePath
 }
 
 Write-Host "Successfully deployed on $instanceName (time: $($elapsed.Elapsed.ToString()))" -ForegroundColor Green
