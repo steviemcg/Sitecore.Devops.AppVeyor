@@ -10,7 +10,7 @@ services:
 - iis
 - mssql2017
 build_script:
-- ps: .\build\build.ps1 appveyor -createArtifacts -installSitecore -buildSolution -deploySolution -$SqlAdminUser sa -$SqlAdminPassword "Password12!" -adminPassword c -Configuration Release
+- ps: .\build\build.ps1 appveyor -createArtifacts -installSitecore -buildSolution -deploySolution -SqlAdminUser sa -SqlAdminPassword "Password12!" -adminPassword c -Configuration Release
 test:
   assemblies:
   - src\**\DevOps.AppVeyor.Tests.*.dll
