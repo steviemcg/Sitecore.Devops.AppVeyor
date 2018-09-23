@@ -34,7 +34,7 @@ Function CheckLicense(
 		throw "Cannot find encrypted license file"
 	}
 
-	if(!secret) {
+	if(!$secret) {
 		throw "'secret' parameter or environment variable not set"
 	}
 	
