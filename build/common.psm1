@@ -33,7 +33,7 @@ Function CheckLicense(
 		throw "Cannot find encrypted license file"
 	}
 
-	if(!$secret) {
+	if(!$Global:secret) {
 		throw "'secret' parameter or environment variable not set"
 	}
 	
@@ -42,7 +42,7 @@ Function CheckLicense(
 		nuget install secure-file -ExcludeVersion
 	}	
 	
-	.\secure-file\tools\secure-file.exe -decrypt $LicenseFileEnc -secret $secret
+	.\secure-file\tools\secure-file.exe -decrypt $LicenseFileEnc -secret $Global:secret
 		
 	if (!($LastExitCode -eq "0")) {
 		throw "secure-file failed with exit code $LastExitCode"
