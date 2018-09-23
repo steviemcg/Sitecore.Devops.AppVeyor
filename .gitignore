@@ -3,11 +3,12 @@
 [Bb]in/
 [Oo]bj/
 /output/
-/code/.vs/
-/code/packages/
+/src/.vs/
+/src/packages/
+/src/.sonarqube
 Thumbs.db
 Desktop.ini
 .DS_Store
-/buildscript/resources/license.xml
-/buildscript/secure-file
-/code/.sonarqube
+/build/resources/license.xml
+/build/secure-file
+
